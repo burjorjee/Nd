@@ -183,6 +183,10 @@ class NdArray(shape : Array<Int>, val kernel : (Array<Int>) -> Float) : Nd(shape
         print("allocating memory...")
         address = unsafe.allocateMemory(longAccum * 4)
         println("done")
+        print("initializing with zeros...")
+        for (x in 0..longAccum-1)
+            unsafe.putFloat(address + x * 4, 0f)
+        println("done")
         print("materializing Nd array...")
         val strides = IntArray(nDims);
         var accum = 1
@@ -317,7 +321,7 @@ fun varforview(source : Nd, target : NdView) {
             target.set(coords, source.get(coords))
         else {
             val maxOfDimension = target.shape[dimIx]
-            for (x in xrange(maxOfDimension)) {
+            for (x in 0..maxOfDimension-1) {
                 coords[dimIx] = x
                 varforviewHelper(dimIx+1, coords)
             }
@@ -339,7 +343,7 @@ fun varfor(address: Long,
                       coords : Array<Int>) {
         if (dimIx + 1 == nDims) {
             val maxOfDimension = shape[dimIx]
-            for (x in xrange(maxOfDimension)) {
+            for (x in 0..maxOfDimension-1) {
                 coords[dimIx] = x
                 unsafe.putFloat(address + index * 4, kernel(coords))
                 index++
@@ -347,7 +351,7 @@ fun varfor(address: Long,
         }
         else {
             val maxOfDimension = shape[dimIx]
-            for (x in xrange(maxOfDimension)) {
+            for (x in 0..maxOfDimension-1) {
                 coords[dimIx] = x
                 varforHelper(dimIx+1, coords)
             }
